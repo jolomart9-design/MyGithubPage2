@@ -7,28 +7,30 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>
   <style>
     body { margin: 0; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
-    #pdf-viewer { flex: 1; width: 100%; }
+    #pdf-viewer { flex: 1; width: 100%; background: #f0f0f0; }
     #controls { display: flex; justify-content: center; padding: 5px; background: #eee; }
-    #controls button { margin: 0 10px; padding: 10px; font-size: 16px; }
+    #controls button { margin: 0 10px; padding: 10px; font-size: 16px; cursor: pointer; }
   </style>
 </head>
 <body>
   <canvas id="pdf-viewer"></canvas>
   <div id="controls">
-    <button id="prev">Previous</button>
+    <button id="prev">⬅ Previous</button>
     <span id="page-info">1 / 1</span>
-    <button id="next">Next</button>
+    <button id="next">Next ➡</button>
   </div>
 
   <script>
-    const url = "./book.pdf"; // PDF ফাইলের path
+    // ✅ তোমার GitHub PDF raw লিঙ্ক
+    const url = "https://raw.githubusercontent.com/jolomart9-design/MyGithubPage2/main/%E0%A6%86%E0%A6%B0%20%E0%A6%B0%E0%A6%BE%E0%A6%B9%E0%A7%80%E0%A6%95%E0%A7%81%E0%A6%B2%20%E0%A6%AE%E0%A6%BE%E0%A6%96%E0%A6%A4%E0%A7%82%E0%A6%AE.pdf";
+
     const pdfjsLib = window['pdfjs-dist/build/pdf'];
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.worker.min.js';
 
     let pdfDoc = null;
     let currentPage = 1;
-    let scale = 1.5;
+    let scale = 1.2;
 
     const canvas = document.getElementById('pdf-viewer');
     const context = canvas.getContext('2d');
@@ -50,21 +52,21 @@
     });
 
     document.getElementById('prev').addEventListener('click', () => {
-      if(currentPage <= 1) return;
+      if (currentPage <= 1) return;
       currentPage--;
       renderPage(currentPage);
     });
 
     document.getElementById('next').addEventListener('click', () => {
-      if(currentPage >= pdfDoc.numPages) return;
+      if (currentPage >= pdfDoc.numPages) return;
       currentPage++;
       renderPage(currentPage);
     });
 
-    // Optional: pinch-zoom or scroll zoom
+    // Zoom with mouse wheel
     canvas.addEventListener('wheel', e => {
       e.preventDefault();
-      if(e.deltaY < 0) scale += 0.1;
+      if (e.deltaY < 0) scale += 0.1;
       else scale = Math.max(0.5, scale - 0.1);
       renderPage(currentPage);
     });
