@@ -1,28 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="bn">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PDF Viewer</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>
   <style>
-    body { margin: 0; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
-    #pdf-viewer { flex: 1; width: 100%; background: #f0f0f0; }
-    #controls { display: flex; justify-content: center; padding: 5px; background: #eee; }
-    #controls button { margin: 0 10px; padding: 10px; font-size: 16px; cursor: pointer; }
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: #f5f5f5;
+      font-family: sans-serif;
+    }
+    #pdf-viewer {
+      flex: 1;
+      width: 100%;
+      background: #fff;
+      display: block;
+      overflow: auto;
+    }
+    #controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #eee;
+      padding: 8px;
+      gap: 15px;
+    }
+    #controls button {
+      padding: 8px 15px;
+      font-size: 16px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #controls button:hover {
+      background: #0056b3;
+    }
   </style>
 </head>
 <body>
+
   <canvas id="pdf-viewer"></canvas>
   <div id="controls">
-    <button id="prev">⬅ Previous</button>
-    <span id="page-info">1 / 1</span>
+    <button id="prev">⬅ Prev</button>
+    <span id="page-info">Page 1 / 1</span>
     <button id="next">Next ➡</button>
   </div>
 
   <script>
-    // ✅ তোমার GitHub PDF raw লিঙ্ক
-    const url = "https://raw.githubusercontent.com/jolomart9-design/MyGithubPage2/main/%E0%A6%86%E0%A6%B0%20%E0%A6%B0%E0%A6%BE%E0%A6%B9%E0%A7%80%E0%A6%95%E0%A7%81%E0%A6%B2%20%E0%A6%AE%E0%A6%BE%E0%A6%96%E0%A6%A4%E0%A7%82%E0%A6%AE.pdf";
+    // ✅ তোমার GitHub PDF RAW লিংক
+    const url = "https://raw.githubusercontent.com/jolomart9-design/MyGithubPage2/main/AR_RAHIKUL_MAKHTUM.pdf";
 
     const pdfjsLib = window['pdfjs-dist/build/pdf'];
     pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -36,34 +68,40 @@
     const context = canvas.getContext('2d');
     const pageInfo = document.getElementById('page-info');
 
+    // 🔹 PDF পেজ রেন্ডার ফাংশন
     function renderPage(pageNum) {
       pdfDoc.getPage(pageNum).then(page => {
-        const viewport = page.getViewport({scale: scale});
+        const viewport = page.getViewport({ scale });
         canvas.height = viewport.height;
         canvas.width = viewport.width;
-        page.render({canvasContext: context, viewport: viewport});
-        pageInfo.textContent = `${currentPage} / ${pdfDoc.numPages}`;
+        const renderContext = { canvasContext: context, viewport };
+        page.render(renderContext);
+        pageInfo.textContent = `Page ${pageNum} / ${pdfDoc.numPages}`;
       });
     }
 
+    // 🔹 PDF লোড
     pdfjsLib.getDocument(url).promise.then(doc => {
       pdfDoc = doc;
       renderPage(currentPage);
     });
 
+    // 🔹 Next / Prev বাটন
     document.getElementById('prev').addEventListener('click', () => {
-      if (currentPage <= 1) return;
-      currentPage--;
-      renderPage(currentPage);
+      if (currentPage > 1) {
+        currentPage--;
+        renderPage(currentPage);
+      }
     });
 
     document.getElementById('next').addEventListener('click', () => {
-      if (currentPage >= pdfDoc.numPages) return;
-      currentPage++;
-      renderPage(currentPage);
+      if (currentPage < pdfDoc.numPages) {
+        currentPage++;
+        renderPage(currentPage);
+      }
     });
 
-    // Zoom with mouse wheel
+    // 🔹 Zoom (Mouse wheel)
     canvas.addEventListener('wheel', e => {
       e.preventDefault();
       if (e.deltaY < 0) scale += 0.1;
